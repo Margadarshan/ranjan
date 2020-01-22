@@ -1,0 +1,13 @@
+#map{
+	border: 1px solid red;
+	width:600px;
+	height: 400px;
+}
+.leaflet-container{
+	width:600px;
+	height: 400px;
+}
+
+#specialbigmap {
+height: 800px;
+}
