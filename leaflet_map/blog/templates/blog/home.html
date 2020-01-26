@@ -1,10 +1,10 @@
-{% extends 'blog/base.html' %}
+{% extends 'map/base.html' %}
 {% block content %}
 	<div class="feed">
 		<a href="{% url 'post-create' %}"><i class="fa fa-pen"></i> Create a Post</a>
 		{% for post in posts %}
 			
-			<h4>{{ post.title }}</h4>
+			<a href="{% url 'post-detail' post.id %}" ><h4>{{ post.title }}</h4></a>
 			<p>{{ post.description }}</p>
 			<img src="{{ post.img.url }}" alt="{{ post.img.url }}" style="max-width:600px;align-items:center" class="mx-auto d-block">
 			<a href="{% url 'post-update' post.id %}" class="btn btn-secondary btn-sm">Update</a>

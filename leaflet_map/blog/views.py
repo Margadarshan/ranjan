@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render,get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin,UserPassesTestMixin
 from django.views.generic import (
             ListView,
@@ -8,6 +8,10 @@ from django.views.generic import (
             )
 from .models import Post
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseRedirect,HttpResponse
+from django.urls import reverse
+
 
 # Create your views here.
 def post_list(request):
@@ -17,7 +21,7 @@ def post_list(request):
 
 class PostCreateView(LoginRequiredMixin,CreateView):
     model=Post
-    fields=['title','description','img','location']
+    fields=['title','description','city','img','location']
     # fields=['location','name']
     
     def form_valid(self,form):
@@ -27,7 +31,7 @@ class PostCreateView(LoginRequiredMixin,CreateView):
 
 class PostUpdateView(LoginRequiredMixin,UserPassesTestMixin,UpdateView):
     model=Post
-    fields=['title','description','img','location']
+    fields=['title','description','city','img','location']
 
     def form_valid(self,form):
         form.instance.author=self.request.user
@@ -51,6 +55,29 @@ class PostDeleteView(LoginRequiredMixin,UserPassesTestMixin,DeleteView):
         else:
             return False
 
-# def testview(request):
-#     form=GeoForm()
-#     return render(request,'blog/test.html',{'form':form})
+def post_detail(request,pk):
+    post=Post.objects.get(id=pk)
+    is_upvoted=False
+    if post.upvotes.filter(id=request.user.id).exists():
+        is_upvoted=True
+    if request.method=="POST":
+        return HttpResponseRedirect(reverse('post-detail',args=(pk,)))
+    context={
+        'post':post,
+        'is_upvoted': is_upvoted,
+        'total_upvotes':post.total_upvotes(),
+    }
+    return render(request,'blog/post_detail.html',context)
+
+@login_required
+def validate_post(request):
+    pk=request.POST.get('post_id')
+    post=get_object_or_404(Post,id=pk)
+    is_upvoted=False
+    if post.validate.filter(id=request.user.id).exists():
+        post.validate.remove(request.user)
+        is_upvoted=False
+    else:
+        post.validate.add(request.user)
+        is_upvoted=True
+    return HttpResponseRedirect(reverse('post-detail',args=(pk,)))

@@ -1,0 +1,112 @@
+{% extends "map/base.html" %}
+{% block content %}
+{% load leaflet_tags %}
+{% load crispy_forms_tags %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+
+<div id="map">
+		{% leaflet_map "mymap" callback="main_map_init" %}
+		<script type="text/javascript">
+			function main_map_init(map,options){
+                //form filled source and destination
+				 L.marker([{{ source_latitude }},{{ source_longitude }}]).addTo(map);
+				 L.marker([{{ destination_latitude }},{{ destination_longitude }}]).addTo(map);
+				 L.marker([{{post.location.latitude}},{{post.location.longitude}}])
+				 L.Routing.control({
+				 	waypoints: [
+				 		L.latLng({{source_latitude}},{{source_longitude}}),
+				 		L.latLng({{destination_latitude}},{{destination_longitude}})
+				 	]
+				 }).addTo(map);
+                //form filled source and destination
+				
+                map.locate({setView: true})
+
+				var latlngs=[];//for polyline
+				var line_color='green';//for red line
+
+                // var url = 'https://api.mapbox.com/directions/v5/mapbox/driving/' +
+                //         '85.3178166,27.6828464;85.2789547,27.6931761'+
+                //         '?geometries=geojson&access_token=pk.eyJ1IjoicmFuamFuNDM1IiwiYSI6ImNrNWIzdnNqeTE2ZjgzZG82OG40aG82ejcifQ.nrFTVyOERu6YhgS66Gxr8A';
+
+                var url = 'https://api.mapbox.com/directions/v5/mapbox/driving/' +'{{source_longitude}},{{source_latitude}};{{destination_longitude}},{{destination_latitude}}'+'?geometries=geojson&access_token=pk.eyJ1IjoicmFuamFuNDM1IiwiYSI6ImNrNWIzdnNqeTE2ZjgzZG82OG40aG82ejcifQ.nrFTVyOERu6YhgS66Gxr8A';
+
+                var req = new XMLHttpRequest();    
+                req.responseType = 'json';    
+                req.open('GET', url, true);
+
+                req.onload = function () {
+                    var jsonResponse = req.response;
+                    console.log(JSON.stringify(jsonResponse));
+                    for(var i=0;i<jsonResponse.routes[0].geometry.coordinates.length;i++){
+                    	if(JSON.stringify(jsonResponse.routes[0].geometry.coordinates[i])=='[85.317825,27.682863]'){
+                    		console.log('match found'+i);
+                    		line_color='red';
+                    	}
+                    }
+                    
+                    console.log(jsonResponse.routes[0].geometry.coordinates[0]);
+                    var distance = jsonResponse.routes[0].distance;
+                    console.log('Distance between ' +
+                        '{{ source_latitude }}' + ',' + '{{ source_longitude }}' + ' and ' +
+                        '{{ destination_latitude }}' + ',' + '{{ destination_longitude }}' +
+                        ' is ' + distance);
+
+					
+                    for(var i=0;i<jsonResponse.routes[0].geometry.coordinates.length;i++){
+                    	
+                    //for test
+                	// L.marker([jsonResponse.routes[0].geometry.coordinates[i][1],jsonResponse.routes[0].geometry.coordinates[i][0]]).addTo(map);
+                
+                	latlngs[i]=[jsonResponse.routes[0].geometry.coordinates[i][1],jsonResponse.routes[0].geometry.coordinates[i][0]];
+          
+                	} 
+                	
+                	L.polyline(latlngs,{color: line_color}).addTo(map);
+
+                };
+
+                req.send();
+
+                //next method to show accident information from database
+                    var popup=L.popup()
+                    {% for post in posts %}
+                        // for formatting
+                        var location_json=JSON.parse('{{post.location.geojson}}'.replace(/&quot;/g,'"'));   
+
+                        //for custom red icon
+                        var myIcon = L.icon({
+                            iconUrl: '/media/info_red.png',
+                            iconSize: [38,50],
+                        });
+                    
+                        var map_marker = new L.GeoJSON(location_json,{
+                            pointToLayer: function (feature,latlng){
+                                return L.marker(latlng,{icon:myIcon});
+                            }
+                        });
+                        map_marker.addTo(map).on('click',function show(e){
+                            popup
+                                .setLatLng(e.latlng)
+                                .setContent('{{post.title}} @ <a href="{% url 'blog-home' %}">{{post.city}}</a>')
+                                .openOn(map)
+                         });
+                    {% endfor %}
+                //code for showing accident information from database
+    }
+
+    
+            
+
+		</script>
+	</div>
+<div>
+    <form method="post">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <p>{{ distance }}</p>
+        <button type="submit">Submit</button>
+    </form>
+    
+</div>
+{% endblock content %}

@@ -8,17 +8,20 @@ from django.contrib.gis.geos import Point
 from location_field.models.spatial import LocationField
 
 
-
 # Create your models here.
 class Post(gis_models.Model):
 	title=models.CharField(max_length=100)
 	description=models.TextField()
+	upvotes=models.ManyToManyField(User,related_name="upvotes",blank=True)
 	img=models.FileField(upload_to='gallery/',null=True,blank=True)
+	city=models.CharField(max_length=20,default='kathmandu')
 	date_posted=models.DateTimeField(default=timezone.now)
 	author=models.ForeignKey(User,on_delete=models.CASCADE)
-	location=LocationField(based_fields=['pulchowk campus'],zoom=7,default=Point(27.6828417,85.3178166))
+	location=LocationField(based_fields=['pulchowk campus'],zoom=7,default=Point(85.3178166,27.6828417))
+	validate=models.ManyToManyField(User,related_name="validate",blank=True)
+
 	class Meta:
-		ordering=['-date_posted',]
+		ordering=['-date_posted']
 
 	def __str__(self):
 		return self.title
@@ -26,12 +29,7 @@ class Post(gis_models.Model):
 	def get_absolute_url(self):
 		return reverse('blog-home')
 
-# class LocationPost(forms.Form):
-# 	# location=gis_models.PointField(srid=4326)
-# 	location = forms.PointField(widget=forms.OSMWidget(attrs={'map_width': 800, 'map_height': 500}))
-# 	# name=models.CharField(max_length=20)
-
-# 	# def __str__(self):
-# 	# 	return self.name
+	def total_upvotes(self):
+		return self.upvotes.count()
 
 

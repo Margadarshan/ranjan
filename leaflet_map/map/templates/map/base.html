@@ -1,0 +1,58 @@
+{% load crispy_forms_tags %}
+{% load leaflet_tags %}
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+	{% leaflet_js %}
+	{% leaflet_css %}
+	<title>Margadarshan</title>
+	<link rel="stylesheet" type="text/css" href="{% static 'map/index.css' %}">
+	<script type="text/javascript" src="{% static 'map/index.js' %}"></script>
+	<!-- leaflet routing machine -->
+	<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+
+<script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+	{{form.media}}
+
+</head>
+<body>
+	<nav>
+		<ul>
+			<li>
+				<a href="{% url 'home' %}">Home</a>
+			</li>
+			<li>
+				<a href="{% url 'blog-home' %}">Information</a>
+			</li>
+			<li>
+				<a href="{% url 'post-create' %}">Add information</a>
+			</li>
+			{% if user.is_authenticated %}
+			<li>
+				<a href="{% url 'logout' %}">Logout</a>
+			</li>
+			{% else %}
+			<li>
+				<a href="{% url 'login' %}">Login</a>
+			</li>
+			<li>
+				<a href="{% url 'register' %}">Register</a>
+			</li>
+			{% endif %}
+		</ul>
+	</nav>
+	<h1>Margadarshan</h1>
+	
+	{% block content %}
+	{% endblock %}
+	
+	
+	
+		
+	
+	
+</body>
+</html>

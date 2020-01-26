@@ -36,20 +36,11 @@ def homepage(request):
 			print(pnt1.distance(pnt2)*100)
 			# location.destination = geolocator.geocode(form_data.destination)
 
-	form=DestinationForm()	
-	return render(request, 'base.html', {
-		'form': form,
-		'source_latitude': source_latitude,
-		'source_longitude': source_longitude,
-		'destination_latitude': destination_latitude,
-		'destination_longitude': destination_longitude,
-		'distance': travel_distance,
-		},)
+	form=DestinationForm()
 
-def databaseshow(request):
-	#showing post objects
+	#showing database information in map
 	post_list=Post.objects.all()
-
+	print (post_list[0].location.wkt)
 	loc_list=[str(post.location) for post in post_list]
 	temp=[loc.split(";") for loc in loc_list]
 	point_list=[i[1] for i in temp]
@@ -59,4 +50,29 @@ def databaseshow(request):
 	lat=[i[0] for i in tempo]
 	lon=[i[1] for i in tempo]
 	latlon=[(float(lat[i]),float(lon[i])) for i in range(len(lon))]
-	return render(request,'databasemap.html',{'posts':post_list,'location':latlon})
+
+	return render(request, 'map/base_map.html', {
+		'form': form,
+		'source_latitude': source_latitude,
+		'source_longitude': source_longitude,
+		'destination_latitude': destination_latitude,
+		'destination_longitude': destination_longitude,
+		'distance': travel_distance,
+		'posts':post_list,
+		'location':latlon
+		},)
+
+# def databaseshow(request):
+# 	#showing post objects
+# 	post_list=Post.objects.all()
+# 	print (post_list[0].location.wkt)
+# 	loc_list=[str(post.location) for post in post_list]
+# 	temp=[loc.split(";") for loc in loc_list]
+# 	point_list=[i[1] for i in temp]
+# 	final=[(point[7:(len(point)-1)]) for point in point_list]
+
+# 	tempo=[a.split(" ") for a in final]
+# 	lat=[i[0] for i in tempo]
+# 	lon=[i[1] for i in tempo]
+# 	latlon=[(float(lat[i]),float(lon[i])) for i in range(len(lon))]
+# 	return render(request,'map/base_map.html',{'posts':post_list,'location':latlon})
