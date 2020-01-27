@@ -27,7 +27,7 @@
       {% if is_upvoted %}
         <button type="submit" name="post_id" value="{{ post.id }}" class="btn btn-success btn-small">Validated</button>
       {% else %}
-        <button type="submit" name="post_id" value="{{ post.id }}" class="btn btn-outline-success btn-small">Upvote</button>
+        <button post_listtype="submit" name="post_id" value="{{ post.id }}" class="btn btn-outline-success btn-small">Upvote</button>
       {% endif %}
     </form>
     {% endif %}

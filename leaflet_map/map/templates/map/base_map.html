@@ -2,34 +2,39 @@
 {% block content %}
 {% load leaflet_tags %}
 {% load crispy_forms_tags %}
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
-
-<div id="map">
-		{% leaflet_map "mymap" callback="main_map_init" %}
-		<script type="text/javascript">
-			function main_map_init(map,options){
+{% load static %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+<link rel="stylesheet" type="text/css" href="{% static 'map/index.css' %}">
+<div class="row">
+    <div class="col-md-3"></div>
+    <div class="col-md-6">
+        <div id="map" class="container card" >
+        {% leaflet_map "mymap" callback="main_map_init" %}
+        <script type="text/javascript">
+            function main_map_init(map,options){
                 //form filled source and destination
-				 L.marker([{{ source_latitude }},{{ source_longitude }}]).addTo(map);
-				 L.marker([{{ destination_latitude }},{{ destination_longitude }}]).addTo(map);
-				 L.marker([{{post.location.latitude}},{{post.location.longitude}}])
-				 L.Routing.control({
-				 	waypoints: [
-				 		L.latLng({{source_latitude}},{{source_longitude}}),
-				 		L.latLng({{destination_latitude}},{{destination_longitude}})
-				 	]
-				 }).addTo(map);
+                 // L.marker([{{ source_latitude }},{{ source_longitude }}]).addTo(map);
+                 // L.marker([{{ destination_latitude }},{{ destination_longitude }}]).addTo(map);
+                 // L.marker([{{post.location.latitude}},{{post.location.longitude}}])
+                 // L.Routing.control({
+                 //     waypoints: [
+                 //         L.latLng({{source_latitude}},{{source_longitude}}),
+                 //         L.latLng({{destination_latitude}},{{destination_longitude}})
+                 //     ]
+                 // }).addTo(map);
                 //form filled source and destination
-				
+                
                 map.locate({setView: true})
 
-				var latlngs=[];//for polyline
-				var line_color='green';//for red line
+                var latlngs=[];//for polyline
 
-                // var url = 'https://api.mapbox.com/directions/v5/mapbox/driving/' +
-                //         '85.3178166,27.6828464;85.2789547,27.6931761'+
-                //         '?geometries=geojson&access_token=pk.eyJ1IjoicmFuamFuNDM1IiwiYSI6ImNrNWIzdnNqeTE2ZjgzZG82OG40aG82ejcifQ.nrFTVyOERu6YhgS66Gxr8A';
+                var url = 'https://api.mapbox.com/directions/v5/mapbox/driving/' +
+                        '85.3178166,27.6828464;85.2789547,27.6931761'+
+                        '?geometries=geojson&access_token=pk.eyJ1IjoicmFuamFuNDM1IiwiYSI6ImNrNWIzdnNqeTE2ZjgzZG82OG40aG82ejcifQ.nrFTVyOERu6YhgS66Gxr8A&alternatives=true';
 
-                var url = 'https://api.mapbox.com/directions/v5/mapbox/driving/' +'{{source_longitude}},{{source_latitude}};{{destination_longitude}},{{destination_latitude}}'+'?geometries=geojson&access_token=pk.eyJ1IjoicmFuamFuNDM1IiwiYSI6ImNrNWIzdnNqeTE2ZjgzZG82OG40aG82ejcifQ.nrFTVyOERu6YhgS66Gxr8A';
+
+
+                // var url = 'https://api.mapbox.com/directions/v5/mapbox/driving/' +'{{source_longitude}},{{source_latitude}};{{destination_longitude}},{{destination_latitude}}'+'?geometries=geojson&access_token=pk.eyJ1IjoicmFuamFuNDM1IiwiYSI6ImNrNWIzdnNqeTE2ZjgzZG82OG40aG82ejcifQ.nrFTVyOERu6YhgS66Gxr8A&alternatives=true';
 
                 var req = new XMLHttpRequest();    
                 req.responseType = 'json';    
@@ -37,33 +42,33 @@
 
                 req.onload = function () {
                     var jsonResponse = req.response;
-                    console.log(JSON.stringify(jsonResponse));
-                    for(var i=0;i<jsonResponse.routes[0].geometry.coordinates.length;i++){
-                    	if(JSON.stringify(jsonResponse.routes[0].geometry.coordinates[i])=='[85.317825,27.682863]'){
-                    		console.log('match found'+i);
-                    		line_color='red';
-                    	}
+                    var routes_num = jsonResponse.routes.length
+                    console.log(jsonResponse);
+
+                    for(var j=0; j<routes_num;j++){
+                        latlngs[j]=[];
+                        var line_color='green';//for red line
+
+                        for(var i=0;i<jsonResponse.routes[j].geometry.coordinates.length;i++){
+                            if(JSON.stringify(jsonResponse.routes[j].geometry.coordinates[i])=='[85.307991,27.679531]'){
+                                console.log('match found'+j);
+                                line_color='red';
+                            }
+                            
+                            var distance = jsonResponse.routes[0].distance;
+                            
+                            // console.log('Distance between ' +
+                            //     '{{ source_latitude }}' + ',' + '{{ source_longitude }}' + ' and ' +
+                            //     '{{ destination_latitude }}' + ',' + '{{ destination_longitude }}' +
+                            //     ' is ' + distance);
+                            latlngs[j][i]=[jsonResponse.routes[j].geometry.coordinates[i][1],jsonResponse.routes[j].geometry.coordinates[i][0]];
+                        }
+                        console.log(line_color);
+                        L.polyline(latlngs[j],{color: line_color}).addTo(map);
                     }
+
                     
-                    console.log(jsonResponse.routes[0].geometry.coordinates[0]);
-                    var distance = jsonResponse.routes[0].distance;
-                    console.log('Distance between ' +
-                        '{{ source_latitude }}' + ',' + '{{ source_longitude }}' + ' and ' +
-                        '{{ destination_latitude }}' + ',' + '{{ destination_longitude }}' +
-                        ' is ' + distance);
-
-					
-                    for(var i=0;i<jsonResponse.routes[0].geometry.coordinates.length;i++){
-                    	
-                    //for test
-                	// L.marker([jsonResponse.routes[0].geometry.coordinates[i][1],jsonResponse.routes[0].geometry.coordinates[i][0]]).addTo(map);
-                
-                	latlngs[i]=[jsonResponse.routes[0].geometry.coordinates[i][1],jsonResponse.routes[0].geometry.coordinates[i][0]];
-          
-                	} 
-                	
-                	L.polyline(latlngs,{color: line_color}).addTo(map);
-
+                    
                 };
 
                 req.send();
@@ -98,15 +103,45 @@
     
             
 
-		</script>
-	</div>
-<div>
-    <form method="post">
-        {% csrf_token %}
-        {{ form|crispy }}
-        <p>{{ distance }}</p>
-        <button type="submit">Submit</button>
-    </form>
+        </script>
+     </div>
+
+     <div>
+        <form method="post">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <p>{{ distance }}</p>
+            <button type="submit">Submit</button>
+        </form>
     
+    </div>
+
 </div>
+
+    <div class="col-md-3">
+        <div class="datashow container card" style="margin-right:2px;box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);border-color:#fff;border-width:2px;
+        ">
+            <h2 class="text-center" style="display:inline;">Sensor data</h2>
+            <div class="card">
+                <div class="container">
+                    Temperature:
+                </div>
+            </div>
+            <div class="card">
+                <div class="container">
+                    Humidity:
+                </div>
+            </div>
+            <div class="card">
+                <div class="container">
+                    Dust:
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+</div>
+
+
 {% endblock content %}
