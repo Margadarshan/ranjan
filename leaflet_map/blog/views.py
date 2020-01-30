@@ -11,11 +11,15 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect,HttpResponse
 from django.urls import reverse
+from users.models import Profile
 
 
 # Create your views here.
 def post_list(request):
 	post_list=Post.objects.all()
+    # post_temp=Post.objects.filter(user__username=user)
+    # post_count = post_temp.count()
+
 	context={'posts':post_list}
 	return render(request,'blog/home.html',context)
 
@@ -70,14 +74,20 @@ def post_detail(request,pk):
     return render(request,'blog/post_detail.html',context)
 
 @login_required
-def validate_post(request):
+def upvote_post(request):
     pk=request.POST.get('post_id')
     post=get_object_or_404(Post,id=pk)
     is_upvoted=False
-    if post.validate.filter(id=request.user.id).exists():
-        post.validate.remove(request.user)
+    if post.upvotes.filter(id=request.user.id).exists():
+        post.upvotes.remove(request.user)
         is_upvoted=False
     else:
-        post.validate.add(request.user)
+        post.upvotes.add(request.user)
         is_upvoted=True
-    return HttpResponseRedirect(reverse('post-detail',args=(pk,)))
+        request.user.profile.reputation+=1
+        request.user.save()
+        if(request.user.profile.reputation>15):
+            request.user.is_verified=True
+    return HttpResponseRedirect(reverse('post-detail', args=(pk, )))
+
+

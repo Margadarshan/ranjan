@@ -10,6 +10,8 @@ class Profile(models.Model):
 	image=models.ImageField(default='default.png',upload_to='profile_pics')
 	birthdate=models.DateField(blank=True,null=True)
 	contact=models.CharField(max_length=12)
+	reputation=models.IntegerField(default=0)
+	is_verified=models.BooleanField(default=False)
 
 	def __str__(self):
 		return f'{self.user.username} Profile'

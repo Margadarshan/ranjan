@@ -1,8 +1,8 @@
-*,html{
-	overflow: visible;
+html,body{
+	max-width: 100%;
 }
-#mymap{
-	height: 500px;
+#map{
+	height: 100%;
 
 }
 
@@ -11,10 +11,10 @@
 	height: 100%;
 }
 
-/*.col-md-3 .datashow{
+.col-md-3 .datashow{
 	display: flex;
 	margin-right: 50px;
-}*/
+}
 
 .datashow .card{
 	box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
@@ -31,5 +31,9 @@
 }
 
 .datashow .container {
-  padding: 2px 16px;
+/*  padding: 2px 16px;
+*/
 }
+
+
+
