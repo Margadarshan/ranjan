@@ -27,6 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     '127.0.0.1',
+    '10.100.53.167',
     '192.168.200.110',
     '192.168.200.227',
 ]
@@ -49,6 +50,8 @@ INSTALLED_APPS = [
     'users',
     'location_field.apps.DefaultConfig',
     'djgeojson',
+    'django_extensions',
+    'petition',
 ]
 
 MIDDLEWARE = [
@@ -159,3 +162,4 @@ LOCATION_FIELD = {
     'provider.mapbox.max_zoom': 18,
     'provider.mapbox.id': 'mapbox.streets',
 }
+

@@ -7,10 +7,11 @@
     <p>By {{post.author}} on {{post.date_posted|date:"F d, Y"}}</p>
       
       <div>
-      <a href="{% url 'post-update' post.id %}" class="btn btn-secondary btn-sm">Update</a>
-      <a href="{% url 'post-delete' post.id %}" class="btn btn-danger btn-sm">Delete</a>
-      </div>
-    
+        {% if user.is_authenticated or user.is_superuser %}
+          <a href="{% url 'post-update' post.id %}" class="btn btn-secondary btn-sm">Update</a>
+          <a href="{% url 'post-delete' post.id %}" class="btn btn-danger btn-sm">Delete</a>
+          </div>
+      {% endif %}
     <p>{{ post.description }}</p>
 
     {% if post.img %}

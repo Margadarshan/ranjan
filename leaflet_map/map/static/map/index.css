@@ -4,12 +4,14 @@ html,body{
 #map{
 	height: 100%;
 
-}
+/*	height: 1000px;
+*/}
 
 .leaflet-container{
-	width: 100%;
+	height: 500px;
+/*	width: 100%;
 	height: 100%;
-}
+}*/
 
 .col-md-3 .datashow{
 	display: flex;

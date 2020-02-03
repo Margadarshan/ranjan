@@ -20,7 +20,12 @@
 
 <script src="http://cdn-geoweb.s3.amazonaws.com/esri-leaflet/1.0.0-rc.2/esri-leaflet-basemaps.js"></script>
 
+<!-- for gps trace -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.css" />
 
+<script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol/dist/L.Control.Locate.min.js" charset="utf-8"></script>
+<!-- for gps trace -->
 
 
 <!-- <script src="dist/jquery.js"></script>
@@ -78,6 +83,21 @@
                  }).addTo(map);
                 // form filled source and destination
                 
+                //gps show location
+                lc=L.control.locate();
+                lc.addTo(map);
+                // function onLocationFound(e){
+                //     var radius=e.accuracy/2;
+                //     L.marker(e.latlng).addTo(map).bindPopup("you are within"+radius+"meters from this point").openPopup();
+                //     L.circle(e.latlng,radius).addTo(map);
+                // }
+
+                // function onLocationError(e){
+                //     alert(e.message);
+                // }
+
+                // map.on('locationfound',onLocationFound);
+                // map.on('locationerror',onLocationError);
                 
                  
                 var controlsearch = new L.Control.Search({
@@ -340,17 +360,18 @@
             
 
         </script>
-     </div>
-
-     <div >
         <form method="post">
             {% csrf_token %}
             {{ form|crispy }}
-            <p>Displacement:-{{ distances }}km</p>
-            <button type="submit" class="btn btn-success">Submit</button>
+<!--             <p>Displacement:-{{ distances }}km</p>
+ -->            <button type="submit" class="btn btn-success">Submit</button>
         </form>
+     </div>
+
+     
+        
     
-    </div>
+    
 
 </div>
 
